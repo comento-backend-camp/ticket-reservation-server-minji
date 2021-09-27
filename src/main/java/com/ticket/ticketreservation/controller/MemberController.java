@@ -4,7 +4,6 @@ import com.ticket.ticketreservation.domain.Member;
 import com.ticket.ticketreservation.exception.StatusCode;
 import com.ticket.ticketreservation.exception.SuccessResponse;
 import com.ticket.ticketreservation.service.MemberService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,16 +19,15 @@ public class MemberController {
     private final MemberService memberService;
     private StatusCode code;
 
-    @Autowired
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
     }
 
     /* 회원가입(이메일 등록) */
     @PostMapping("/join")
-    public ResponseEntity join(@RequestBody @Valid Member member){
+    public ResponseEntity join(@RequestBody @Valid String memberEmail){
         code = StatusCode.CREATED;
-        memberService.save(member);
+        memberService.save(memberEmail);
         return new ResponseEntity<>(SuccessResponse.of(code), code.getHttpStatus());
     }
 }

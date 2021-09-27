@@ -17,10 +17,15 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "MEMBER_ID")
-    private Long MemberId;
+    private Long memberId;
 
     @NotEmpty
     @Email
     @Column(name = "MEMBER_EMAIL")
-    private String MemberEmail;
+    private String memberEmail;
+
+
+    public Member(String memberEmail) {
+        this.memberEmail = memberEmail;
+    }
 }

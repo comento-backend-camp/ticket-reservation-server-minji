@@ -36,7 +36,6 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> InvaidInputExceptionHandler(Exception e) {
         code = StatusCode.INVALID_INPUT_VALUE;
         ErrorResponse response = ErrorResponse.of(code);
-        response.setMessage(e.getMessage());
         return new ResponseEntity<>(response, code.getHttpStatus());
     }
 
@@ -49,11 +48,9 @@ public class GlobalExceptionHandler {
         if(e.getMessage() == "MemberService"){ // 이메일 중복
             code = StatusCode.ACCOUNT_ALREADY_EXISTS;
             response = ErrorResponse.of(code);
-            response.setMessage(e.getMessage());
         } else{ // 좌석 중복
             code = StatusCode.RESOURCE_ALREADY_EXISTS;
             response = ErrorResponse.of(code);
-            response.setMessage(e.getMessage());
         }
         return new ResponseEntity<>(response, code.getHttpStatus());
     }
@@ -64,7 +61,6 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> NotFoundExceptionHandler(Throwable t) {
         code = StatusCode.RESOURCE_NOT_FOUND;
         ErrorResponse response = ErrorResponse.of(code);
-        response.setMessage(t.getMessage());
         return new ResponseEntity<>(response, code.getHttpStatus());
     }
 
@@ -74,7 +70,6 @@ public class GlobalExceptionHandler {
     protected ResponseEntity<ErrorResponse> UnauthorizedExceptionHandler(UnauthorizedException e) {
         code = StatusCode.INVALID_AUTHENTICATION_INFO;
         ErrorResponse response = ErrorResponse.of(code);
-        response.setMessage(e.getMessage());
         return new ResponseEntity<>(response, code.getHttpStatus());
     }
 
