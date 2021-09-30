@@ -1,7 +1,7 @@
 package com.ticket.ticketreservation.domain;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -9,7 +9,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
 @Entity
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Table
@@ -23,7 +23,6 @@ public class Member {
     @Email
     @Column(name = "MEMBER_EMAIL")
     private String memberEmail;
-
 
     public Member(String memberEmail) {
         this.memberEmail = memberEmail;

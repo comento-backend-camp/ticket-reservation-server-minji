@@ -1,25 +1,21 @@
 package com.ticket.ticketreservation.exception;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SuccessResponse<T> {
+public class SuccessResponse {
+
     private int status;
     private String message;
     private Object data;
 
-    public SuccessResponse(StatusCode code) {
+    public SuccessResponse(StatusCode code, Object data) {
         this.status = code.getStatus();
         this.message = code.getMessage();
-        this.data = code.getReason();
-    }
-
-    public static SuccessResponse of(StatusCode code) {
-        return new SuccessResponse(code);
+        this.data = data;
     }
 }

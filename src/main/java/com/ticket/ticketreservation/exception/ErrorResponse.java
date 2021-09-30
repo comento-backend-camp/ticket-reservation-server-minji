@@ -1,13 +1,14 @@
 package com.ticket.ticketreservation.exception;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErrorResponse {
+
     private int status;
     private String message;
     private String reason;
@@ -16,9 +17,5 @@ public class ErrorResponse {
         this.status = code.getStatus();
         this.message = code.getMessage();
         this.reason = code.getReason();
-    }
-
-    public static ErrorResponse of(StatusCode code) {
-        return new ErrorResponse(code);
     }
 }

@@ -9,24 +9,21 @@ import org.springframework.stereotype.Service;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-
     public MemberService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
     }
 
     /* 회원가입(이메일 등록) */
     public void save(String memberEmail){
-
         Member member = new Member(memberEmail);
-
-        if(emailDuplicateCheck(memberEmail)){
+        if(isDuplicatedEmail(memberEmail)){
             throw new AlreadyExistsException("MemberService");
         }
         memberRepository.save(member);
     }
 
     /* 이메일 중복 체크 */
-    public boolean emailDuplicateCheck(String memberEmail){
+    public boolean isDuplicatedEmail(String memberEmail){
         return memberRepository.findByMemberEmail(memberEmail).isPresent();
     }
 }
