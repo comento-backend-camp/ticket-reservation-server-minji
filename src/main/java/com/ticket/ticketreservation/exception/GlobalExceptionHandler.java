@@ -24,9 +24,6 @@ import java.util.NoSuchElementException;
 @ControllerAdvice   // 모든 예외 한 곳에서 처리
 @Slf4j
 public class GlobalExceptionHandler {
-
-    private static StatusCode code;
-
     /*
     *   javax.validation.Valid or @Validated 으로 binding error 발생
     *   enum type 일치하지 않아 binding 못할 경우 발생
