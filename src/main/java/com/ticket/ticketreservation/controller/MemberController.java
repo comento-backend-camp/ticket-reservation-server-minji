@@ -3,13 +3,11 @@ package com.ticket.ticketreservation.controller;
 import com.ticket.ticketreservation.domain.Member;
 import com.ticket.ticketreservation.exception.StatusCode;
 import com.ticket.ticketreservation.exception.SuccessResponse;
+import com.ticket.ticketreservation.exception.customException.UnauthorizedException;
 import com.ticket.ticketreservation.repository.MemberRepository;
 import com.ticket.ticketreservation.service.MemberService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -33,5 +31,16 @@ public class MemberController {
         memberService.save(memberEmail);
         Optional<Member> member = memberRepository.findByMemberEmail(memberEmail);
         return ResponseEntity.created(URI.create("/members/" + member.get().getMemberId())).body(new SuccessResponse(StatusCode.CREATED, member));
+    }
+
+    /* 이메일 인증 */
+    @GetMapping("/verification/{email}")
+    public ResponseEntity verifyEmail(@Valid @PathVariable(value = "email") String memberEmail){
+        Optional<Member> member = memberRepository.findByMemberEmail(memberEmail);
+        if (member.isPresent()) {
+            return ResponseEntity.ok().body(new SuccessResponse(StatusCode.OK, member));
+        } else{
+            throw new UnauthorizedException();
+        }
     }
 }
