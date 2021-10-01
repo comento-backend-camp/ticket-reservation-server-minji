@@ -7,13 +7,16 @@ import com.ticket.ticketreservation.exception.customException.UnauthorizedExcept
 import com.ticket.ticketreservation.repository.MemberRepository;
 import com.ticket.ticketreservation.service.MemberService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import java.net.URI;
 import java.util.Optional;
 
 @RestController
+@Validated
 @RequestMapping("/api")
 public class MemberController {
 
@@ -30,12 +33,12 @@ public class MemberController {
     public ResponseEntity join(@RequestBody @Valid String memberEmail){
         memberService.save(memberEmail);
         Optional<Member> member = memberRepository.findByMemberEmail(memberEmail);
-        return ResponseEntity.created(URI.create("/members/" + member.get().getMemberId())).body(new SuccessResponse(StatusCode.CREATED, member));
+        return ResponseEntity.created(URI.create("/members/" + memberEmail)).body(new SuccessResponse(StatusCode.CREATED, member));
     }
 
     /* 이메일 인증 */
-    @GetMapping("/verification/{email}")
-    public ResponseEntity verifyEmail(@Valid @PathVariable(value = "email") String memberEmail){
+    @GetMapping("/members/{memberEmail}")
+    public ResponseEntity verifyEmail(@PathVariable(value = "memberEmail") @Email String memberEmail){
         Optional<Member> member = memberRepository.findByMemberEmail(memberEmail);
         if (member.isPresent()) {
             return ResponseEntity.ok().body(new SuccessResponse(StatusCode.OK, member));
