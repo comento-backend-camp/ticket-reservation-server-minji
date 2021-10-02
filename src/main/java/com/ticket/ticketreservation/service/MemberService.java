@@ -2,8 +2,11 @@ package com.ticket.ticketreservation.service;
 
 import com.ticket.ticketreservation.domain.Member;
 import com.ticket.ticketreservation.exception.customException.AlreadyExistsException;
+import com.ticket.ticketreservation.exception.customException.UnauthorizedException;
 import com.ticket.ticketreservation.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class MemberService {
@@ -25,5 +28,15 @@ public class MemberService {
     /* 이메일 중복 체크 */
     public boolean isDuplicatedEmail(String memberEmail){
         return memberRepository.findByMemberEmail(memberEmail).isPresent();
+    }
+
+    /* 이메일 조회 */
+    public Optional<Member> findByMemberEmail(String memberEmail){
+        Optional<Member> member = memberRepository.findByMemberEmail(memberEmail);
+        if (member.isPresent()) {
+            return memberRepository.findByMemberEmail(memberEmail);
+        } else{
+            throw new UnauthorizedException();
+        }
     }
 }
