@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -24,10 +24,10 @@ public class Performance {
     private String title;
     @NotNull
     @Column(name="START_DATE")
-    private Date startDate;
+    private LocalDate startDate;
     @NotNull
     @Column(name="END_DATE")
-    private Date endDate;
+    private LocalDate endDate;
     @NotNull
     @Column(name="PRICE")
     private String price;
