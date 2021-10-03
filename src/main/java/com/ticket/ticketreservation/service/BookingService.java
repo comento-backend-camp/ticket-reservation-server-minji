@@ -1,9 +1,9 @@
 package com.ticket.ticketreservation.service;
 
+import com.ticket.ticketreservation.domain.Booking;
 import com.ticket.ticketreservation.domain.Performance;
-import com.ticket.ticketreservation.domain.Seat;
 import com.ticket.ticketreservation.enums.SeatType;
-import com.ticket.ticketreservation.repository.SeatRepository;
+import com.ticket.ticketreservation.repository.BookingRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -12,12 +12,12 @@ import java.util.HashMap;
 import java.util.List;
 
 @Service
-public class SeatService {
+public class BookingService {
 
-    private final SeatRepository seatRepository;
+    private final BookingRepository bookingRepository;
     private final PerformanceService performanceService;
-    public SeatService(SeatRepository seatRepository, PerformanceService performanceService) {
-        this.seatRepository = seatRepository;
+    public BookingService(BookingRepository bookingRepository, PerformanceService performanceService) {
+        this.bookingRepository = bookingRepository;
         this.performanceService = performanceService;
     }
 
@@ -27,7 +27,7 @@ public class SeatService {
         HashMap<String, List<Integer>> reservedSeatMap = new HashMap<>();
 
         for(SeatType type : SeatType.values()){
-            List<Seat> seatTypeList = seatRepository.findByPerformanceAndPerformanceDateAndSeatType(performance, date, type);
+            List<Booking> seatTypeList = bookingRepository.findByPerformanceAndPerformanceDateAndSeatType(performance, date, type);
             List<Integer> seatNumberList = new ArrayList<>();
             for(int i=0; i<seatTypeList.size(); i++){
                 seatNumberList.add(seatTypeList.get(i).getSeatNumber());

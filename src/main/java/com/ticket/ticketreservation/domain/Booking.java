@@ -15,11 +15,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table
-public class Seat {
+public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "SEAT_ID")
-    private Long seatId;
+    @Column(name = "BOOKING_ID")
+    private Long BookingId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull

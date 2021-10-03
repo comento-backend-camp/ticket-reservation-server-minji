@@ -2,7 +2,7 @@ package com.ticket.ticketreservation.controller;
 
 import com.ticket.ticketreservation.exception.StatusCode;
 import com.ticket.ticketreservation.exception.SuccessResponse;
-import com.ticket.ticketreservation.service.SeatService;
+import com.ticket.ticketreservation.service.BookingService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,18 +21,18 @@ import java.util.List;
 @RestController
 @Validated
 @RequestMapping("/api")
-public class SeatController {
+public class BookingController {
 
-    private final SeatService seatService;
-    public SeatController(SeatService seatService) {
-        this.seatService = seatService;
+    private final BookingService bookingService;
+    public BookingController(BookingService bookingService) {
+        this.bookingService = bookingService;
     }
 
     /* 특정 공연의 특정날짜에 예약된 좌석 조회 */
     @GetMapping("performances/seats")
     public ResponseEntity showReservedSeats(@RequestParam(value = "title") @NotBlank  String title,
                                             @RequestParam(value="date") @DateTimeFormat(pattern = "yyyy-MM-dd") @FutureOrPresent @NotNull LocalDate performanceDate){
-        HashMap<String, List<Integer>> seats = seatService.showReservedSeats(title, performanceDate);
+        HashMap<String, List<Integer>> seats = bookingService.showReservedSeats(title, performanceDate);
         return ResponseEntity.ok().body(new SuccessResponse(StatusCode.OK, seats));
     }
 }
