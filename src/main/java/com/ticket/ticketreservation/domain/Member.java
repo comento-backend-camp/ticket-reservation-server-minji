@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Getter
@@ -19,9 +19,9 @@ public class Member {
     @Column(name = "MEMBER_ID")
     private Long memberId;
 
-    @NotEmpty
+    @NotBlank
     @Email
-    @Column(name = "MEMBER_EMAIL")
+    @Column(name = "MEMBER_EMAIL", nullable = false)
     private String memberEmail;
 
     public Member(String memberEmail) {
