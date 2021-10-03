@@ -10,13 +10,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MemberResponseDto {
+public class MemberDto {
 
     private Long memberId;
     private String memberEmail;
 
-    public static MemberResponseDto from(Member member){
-        return MemberResponseDto.builder()
+    public Member toEntity(){
+        return Member.builder()
+                .memberId(memberId)
+                .memberEmail(memberEmail)
+                .build();
+    }
+
+    public static MemberDto from(Member member){
+        return MemberDto.builder()
                 .memberId(member.getMemberId())
                 .memberEmail(member.getMemberEmail())
                 .build();
