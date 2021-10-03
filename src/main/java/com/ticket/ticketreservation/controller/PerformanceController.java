@@ -1,6 +1,6 @@
 package com.ticket.ticketreservation.controller;
 
-import com.ticket.ticketreservation.domain.Performance;
+import com.ticket.ticketreservation.dto.PerformanceDto;
 import com.ticket.ticketreservation.exception.StatusCode;
 import com.ticket.ticketreservation.exception.SuccessResponse;
 import com.ticket.ticketreservation.service.PerformanceService;
@@ -29,7 +29,7 @@ public class PerformanceController {
     @GetMapping("/performances")
     public ResponseEntity showPerformanceInfo(@RequestParam(value = "title") @NotBlank String title){
         LocalDate today = LocalDate.now();
-        List<Performance> performanceList = performanceService.showPerformanceList(title, today);
-        return ResponseEntity.ok().body(new SuccessResponse(StatusCode.OK, performanceList));
+        List<PerformanceDto> performanceDtoList = performanceService.showPerformanceList(title, today);
+        return ResponseEntity.ok().body(new SuccessResponse(StatusCode.OK, performanceDtoList));
     }
 }

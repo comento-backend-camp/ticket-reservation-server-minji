@@ -1,5 +1,6 @@
 package com.ticket.ticketreservation.controller;
 
+import com.ticket.ticketreservation.dto.BookedSeatResponseDto;
 import com.ticket.ticketreservation.exception.StatusCode;
 import com.ticket.ticketreservation.exception.SuccessResponse;
 import com.ticket.ticketreservation.service.BookingService;
@@ -15,7 +16,6 @@ import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -32,7 +32,7 @@ public class BookingController {
     @GetMapping("performances/seats")
     public ResponseEntity showReservedSeats(@RequestParam(value = "title") @NotBlank  String title,
                                             @RequestParam(value="date") @DateTimeFormat(pattern = "yyyy-MM-dd") @FutureOrPresent @NotNull LocalDate performanceDate){
-        HashMap<String, List<Integer>> seats = bookingService.showReservedSeats(title, performanceDate);
-        return ResponseEntity.ok().body(new SuccessResponse(StatusCode.OK, seats));
+        List<BookedSeatResponseDto> bookedSeatResponseDtoList = bookingService.showBookedSeats(title, performanceDate);
+        return ResponseEntity.ok().body(new SuccessResponse(StatusCode.OK, bookedSeatResponseDtoList));
     }
 }
