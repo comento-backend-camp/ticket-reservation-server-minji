@@ -51,8 +51,10 @@ public class BookingController {
     @PostMapping("/booking")
     public ResponseEntity booking(@RequestBody @Valid BookingRequestDto bookingRequestDto, Errors errors){
         if(errors.hasErrors()){
+            bookingService.saveFailLog(bookingRequestDto);
         }
         BookingResponseDto bookingResponseDto = bookingService.saveBooking(bookingRequestDto);
+        bookingService.saveSuccessLog(bookingRequestDto);
         return ResponseEntity.created(URI.create("/booking/" + bookingRequestDto.getMemberEmail())).body(new SuccessResponse(StatusCode.CREATED, bookingResponseDto));
     }
 }

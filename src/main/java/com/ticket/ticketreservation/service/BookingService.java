@@ -7,7 +7,6 @@ import com.ticket.ticketreservation.exception.customException.AlreadyExistsExcep
 import com.ticket.ticketreservation.exception.customException.ResourceNotFoundException;
 import com.ticket.ticketreservation.repository.BookingRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,11 +19,13 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final PerformanceService performanceService;
     private final MemberService memberService;
+    private final BookingHistoryService bookingHistoryService;
 
-    public BookingService(BookingRepository bookingRepository, PerformanceService performanceService, MemberService memberService) {
+    public BookingService(BookingRepository bookingRepository, PerformanceService performanceService, MemberService memberService, BookingHistoryService bookingHistoryService) {
         this.bookingRepository = bookingRepository;
         this.performanceService = performanceService;
         this.memberService = memberService;
+        this.bookingHistoryService = bookingHistoryService;
     }
 
     /* 특정 공연의 특정날짜에 예약된 좌석 조회 */
@@ -56,15 +57,16 @@ public class BookingService {
     }
 
     /* 공연 예약 */
-    @Transactional
     public BookingResponseDto saveBooking(BookingRequestDto bookingRequestDto){
         MemberDto memberDto = memberService.findByMemberEmail(bookingRequestDto.getMemberEmail());
         PerformanceDto performanceDto = performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate(), bookingRequestDto.getPerformanceDate());
 
         if(bookingRequestDto.getSeatNumber() > 20){
+            saveFailLog(bookingRequestDto);
             throw new ResourceNotFoundException("존재하지 않는 좌석");
         }
         if(isDuplicatedSeat(bookingRequestDto, performanceDto)){
+            saveFailLog(bookingRequestDto);
             throw new AlreadyExistsException("좌석 중복");
         }
         return BookingResponseDto.from(bookingRepository.save(bookingRequestDto.toEntity(performanceDto.toEntity(), memberDto.toEntity())));
@@ -74,5 +76,34 @@ public class BookingService {
     public boolean isDuplicatedSeat(BookingRequestDto bookingRequestDto, PerformanceDto performanceDto){
         return bookingRepository.findByPerformanceAndPerformanceDateAndSeatTypeAndSeatNumber(performanceDto.toEntity(), bookingRequestDto.getPerformanceDate(),
                 bookingRequestDto.getSeatType(), bookingRequestDto.getSeatNumber()).isPresent();
+    }
+
+    /* 공연 예약 성공로그 저장 */
+    public void saveSuccessLog(BookingRequestDto bookingRequestDto){
+        BookingHistoryRequestDto bookingHistoryRequestDto = BookingHistoryRequestDto.builder()
+                .performance(performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate()
+                        , bookingRequestDto.getPerformanceDate()).toEntity())
+                .member(memberService.findByMemberEmail(bookingRequestDto.getMemberEmail()).toEntity())
+                .seatType(bookingRequestDto.getSeatType())
+                .seatNumber(bookingRequestDto.getSeatNumber())
+                .performanceDate(bookingRequestDto.getPerformanceDate())
+                .price(bookingRequestDto.getPrice())
+                .isBooking(true)
+                .build();
+        bookingHistoryService.saveBookingHistory(bookingHistoryRequestDto);
+    }
+
+    /* 공연 예약 실패로그 저장 */
+    public void saveFailLog(BookingRequestDto bookingRequestDto){
+        BookingHistoryRequestDto bookingHistoryRequestDto = BookingHistoryRequestDto.builder()
+                .performance(performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate()
+                            , bookingRequestDto.getPerformanceDate()).toEntity())
+                .member(memberService.findByMemberEmail(bookingRequestDto.getMemberEmail()).toEntity())
+                .seatType(bookingRequestDto.getSeatType())
+                .seatNumber(bookingRequestDto.getSeatNumber())
+                .performanceDate(bookingRequestDto.getPerformanceDate())
+                .price(bookingRequestDto.getPrice())
+                .build();
+        bookingHistoryService.saveBookingHistory(bookingHistoryRequestDto);
     }
 }
