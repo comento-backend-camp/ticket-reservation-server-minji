@@ -1,14 +1,13 @@
 package com.ticket.ticketreservation.service;
 
 import com.ticket.ticketreservation.domain.Booking;
-import com.ticket.ticketreservation.dto.BookedSeatResponseDto;
-import com.ticket.ticketreservation.dto.BookingResponseDto;
-import com.ticket.ticketreservation.dto.MemberDto;
-import com.ticket.ticketreservation.dto.PerformanceDto;
+import com.ticket.ticketreservation.dto.*;
 import com.ticket.ticketreservation.enums.SeatType;
+import com.ticket.ticketreservation.exception.customException.AlreadyExistsException;
 import com.ticket.ticketreservation.exception.customException.ResourceNotFoundException;
 import com.ticket.ticketreservation.repository.BookingRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -54,5 +53,26 @@ public class BookingService {
         return bookingList.stream()
                 .map(BookingResponseDto::from)
                 .collect(Collectors.toList());
+    }
+
+    /* 공연 예약 */
+    @Transactional
+    public BookingResponseDto saveBooking(BookingRequestDto bookingRequestDto){
+        MemberDto memberDto = memberService.findByMemberEmail(bookingRequestDto.getMemberEmail());
+        PerformanceDto performanceDto = performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate(), bookingRequestDto.getPerformanceDate());
+
+        if(bookingRequestDto.getSeatNumber() > 20){
+            throw new ResourceNotFoundException("존재하지 않는 좌석");
+        }
+        if(isDuplicatedSeat(bookingRequestDto, performanceDto)){
+            throw new AlreadyExistsException("좌석 중복");
+        }
+        return BookingResponseDto.from(bookingRepository.save(bookingRequestDto.toEntity(performanceDto.toEntity(), memberDto.toEntity())));
+    }
+
+    /* 좌석 중복 확인 */
+    public boolean isDuplicatedSeat(BookingRequestDto bookingRequestDto, PerformanceDto performanceDto){
+        return bookingRepository.findByPerformanceAndPerformanceDateAndSeatTypeAndSeatNumber(performanceDto.toEntity(), bookingRequestDto.getPerformanceDate(),
+                bookingRequestDto.getSeatType(), bookingRequestDto.getSeatNumber()).isPresent();
     }
 }
