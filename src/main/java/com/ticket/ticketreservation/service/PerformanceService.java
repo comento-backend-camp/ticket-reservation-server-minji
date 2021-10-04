@@ -7,9 +7,9 @@ import com.ticket.ticketreservation.repository.PerformanceRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PerformanceService {
@@ -25,12 +25,9 @@ public class PerformanceService {
         if (performanceList.isEmpty()) {
             throw new ResourceNotFoundException("공연 조회 결과 없음");
         }
-
-        List<PerformanceDto> performanceDtoList = new ArrayList<>();
-        for(Performance performance : performanceList){
-            performanceDtoList.add(PerformanceDto.from(performance));
-        }
-        return performanceDtoList;
+        return performanceList.stream()
+                .map(PerformanceDto::from)
+                .collect(Collectors.toList());
     }
 
     /* 특정 날짜의 특정 공연 정보 조회 */

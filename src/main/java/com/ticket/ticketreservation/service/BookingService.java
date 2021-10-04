@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -50,11 +51,8 @@ public class BookingService {
         if(bookingList.isEmpty()){
             throw new ResourceNotFoundException("공연 예약 정보 없음");
         }
-
-        List<BookingResponseDto> bookingDtoList = new ArrayList<>();
-        for(Booking booking : bookingList){
-            bookingDtoList.add(BookingResponseDto.from(booking));
-        }
-        return bookingDtoList;
+        return bookingList.stream()
+                .map(BookingResponseDto::from)
+                .collect(Collectors.toList());
     }
 }
