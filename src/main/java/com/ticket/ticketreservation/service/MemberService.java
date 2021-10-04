@@ -21,7 +21,7 @@ public class MemberService {
     public void save(String memberEmail){
         Member member = new Member(memberEmail);
         if(isDuplicatedEmail(memberEmail)){
-            throw new AlreadyExistsException("MemberService");
+            throw new AlreadyExistsException("이메일 중복");
         }
         memberRepository.save(member);
     }

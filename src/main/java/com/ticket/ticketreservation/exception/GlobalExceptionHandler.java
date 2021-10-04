@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = AlreadyExistsException.class)
     @ResponseStatus(value = HttpStatus.CONFLICT)
     protected ResponseEntity<ErrorResponse> AlreadyExistsExceptionHandler(AlreadyExistsException e) {
-        if(e.getMessage() == "MemberService"){ // 이메일 중복
+        if(e.getMessage() == "이메일 중복"){ // 이메일 중복
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(StatusCode.ACCOUNT_ALREADY_EXISTS));
         } else{ // 좌석 중복
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse(StatusCode.RESOURCE_ALREADY_EXISTS));
