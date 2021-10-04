@@ -2,14 +2,18 @@ package com.ticket.ticketreservation.service;
 
 import com.ticket.ticketreservation.domain.Booking;
 import com.ticket.ticketreservation.dto.BookedSeatResponseDto;
+import com.ticket.ticketreservation.dto.BookingResponseDto;
+import com.ticket.ticketreservation.dto.MemberDto;
 import com.ticket.ticketreservation.dto.PerformanceDto;
 import com.ticket.ticketreservation.enums.SeatType;
+import com.ticket.ticketreservation.exception.customException.ResourceNotFoundException;
 import com.ticket.ticketreservation.repository.BookingRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -38,5 +42,17 @@ public class BookingService {
             bookingList.add(BookedSeatResponseDto.from(type, seatNumberList));
         }
         return bookingList;
+    }
+
+    /* 공연 예약 정보 조회 */
+    public List<BookingResponseDto> showBookingInfo(String memberEmail){
+        MemberDto memberDto = memberService.findByMemberEmail(memberEmail);
+        List<Booking> bookingList = bookingRepository.findByMember(memberDto.toEntity());
+        if(bookingList.isEmpty()){
+            throw new ResourceNotFoundException("공연 예약 정보 없음");
+        }
+        return bookingList.stream()
+                .map(BookingResponseDto::from)
+                .collect(Collectors.toList());
     }
 }

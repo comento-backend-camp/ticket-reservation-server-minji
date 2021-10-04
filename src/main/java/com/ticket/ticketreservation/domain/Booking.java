@@ -2,6 +2,7 @@ package com.ticket.ticketreservation.domain;
 
 import com.ticket.ticketreservation.enums.SeatType;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,12 +17,13 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "BOOKING_ID")
-    private Long BookingId;
+    private Long bookingId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull

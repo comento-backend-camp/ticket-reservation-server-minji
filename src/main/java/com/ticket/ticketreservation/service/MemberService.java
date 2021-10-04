@@ -1,7 +1,7 @@
 package com.ticket.ticketreservation.service;
 
 import com.ticket.ticketreservation.domain.Member;
-import com.ticket.ticketreservation.dto.MemberResponseDto;
+import com.ticket.ticketreservation.dto.MemberDto;
 import com.ticket.ticketreservation.exception.customException.AlreadyExistsException;
 import com.ticket.ticketreservation.exception.customException.UnauthorizedException;
 import com.ticket.ticketreservation.repository.MemberRepository;
@@ -32,8 +32,8 @@ public class MemberService {
     }
 
     /* 이메일 조회 */
-    public MemberResponseDto findByMemberEmail(String memberEmail){
+    public MemberDto findByMemberEmail(String memberEmail){
         Optional<Member> member = memberRepository.findByMemberEmail(memberEmail);
-        return MemberResponseDto.from(member.orElseThrow(UnauthorizedException::new));
+        return MemberDto.from(member.orElseThrow(UnauthorizedException::new));
     }
 }
