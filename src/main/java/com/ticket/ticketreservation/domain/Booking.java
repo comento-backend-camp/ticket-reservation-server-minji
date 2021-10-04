@@ -53,7 +53,6 @@ public class Booking {
     @Column(name="PRICE")
     private int price;
 
-    @NotNull
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="CREATE_AT")
