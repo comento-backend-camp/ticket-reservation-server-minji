@@ -6,28 +6,35 @@ import com.ticket.ticketreservation.enums.SeatType;
 import com.ticket.ticketreservation.exception.customException.AlreadyExistsException;
 import com.ticket.ticketreservation.exception.customException.ResourceNotFoundException;
 import com.ticket.ticketreservation.repository.BookingRepository;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
 
     private static final int MAX_SEAT_NUMBER = 20;
+    private static final int WAITE_TIME = 2;
+    private static final int LEASE_TIME = 3;
 
     private final BookingRepository bookingRepository;
     private final PerformanceService performanceService;
     private final MemberService memberService;
     private final BookingHistoryService bookingHistoryService;
+    private final RedissonClient redissonClient;
 
-    public BookingService(BookingRepository bookingRepository, PerformanceService performanceService, MemberService memberService, BookingHistoryService bookingHistoryService) {
+    public BookingService(BookingRepository bookingRepository, PerformanceService performanceService, MemberService memberService, BookingHistoryService bookingHistoryService, RedissonClient redissonClient) {
         this.bookingRepository = bookingRepository;
         this.performanceService = performanceService;
         this.memberService = memberService;
         this.bookingHistoryService = bookingHistoryService;
+        this.redissonClient = redissonClient;
     }
 
     /* 특정 공연의 특정날짜에 예약된 좌석 조회 */
@@ -60,12 +67,25 @@ public class BookingService {
 
     /* 공연 예약 */
     public BookingResponseDto saveBooking(BookingRequestDto bookingRequestDto){
-        MemberDto memberDto = memberService.findByMemberEmail(bookingRequestDto.getMemberEmail());
-        PerformanceDto performanceDto = performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate(), bookingRequestDto.getPerformanceDate());
+        RLock lock = redissonClient.getLock("bookingLock");
+        Booking booking;
+        try {
+            boolean isLocked = lock.tryLock(WAITE_TIME, LEASE_TIME, TimeUnit.SECONDS);
+            if (!isLocked){
+                throw new RuntimeException("Lock 획득 실패");
+            }
+            MemberDto memberDto = memberService.findByMemberEmail(bookingRequestDto.getMemberEmail());
+            PerformanceDto performanceDto = performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate(), bookingRequestDto.getPerformanceDate());
 
-        isDuplicatedSeatException(bookingRequestDto, performanceDto);
-        isValidSeatNumberException(bookingRequestDto);
-        return BookingResponseDto.from(bookingRepository.save(bookingRequestDto.toEntity(performanceDto.toEntity(), memberDto.toEntity())));
+            isDuplicatedSeatException(bookingRequestDto, performanceDto);
+            isValidSeatNumberException(bookingRequestDto);
+            booking = bookingRepository.save(bookingRequestDto.toEntity(performanceDto.toEntity(), memberDto.toEntity()));
+        } catch (InterruptedException e) {
+            throw new RuntimeException("쓰레드가 인터럽트 됨");
+        } finally {
+            lock.unlock();
+        }
+        return BookingResponseDto.from(booking);
     }
 
     /* 좌석 중복 예외처리 */
