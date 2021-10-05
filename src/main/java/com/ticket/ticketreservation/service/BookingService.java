@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 @Service
 public class BookingService {
 
+    private static final int MAX_SEAT_NUMBER = 20;
+
     private final BookingRepository bookingRepository;
     private final PerformanceService performanceService;
     private final MemberService memberService;
@@ -61,49 +63,30 @@ public class BookingService {
         MemberDto memberDto = memberService.findByMemberEmail(bookingRequestDto.getMemberEmail());
         PerformanceDto performanceDto = performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate(), bookingRequestDto.getPerformanceDate());
 
-        if(bookingRequestDto.getSeatNumber() > 20){
-            saveFailLog(bookingRequestDto);
-            throw new ResourceNotFoundException("존재하지 않는 좌석");
-        }
+        isDuplicatedSeatException(bookingRequestDto, performanceDto);
+        isValidSeatNumberException(bookingRequestDto);
+        return BookingResponseDto.from(bookingRepository.save(bookingRequestDto.toEntity(performanceDto.toEntity(), memberDto.toEntity())));
+    }
+
+    /* 좌석 중복 예외처리 */
+    private void isDuplicatedSeatException(BookingRequestDto bookingRequestDto, PerformanceDto performanceDto) {
         if(isDuplicatedSeat(bookingRequestDto, performanceDto)){
-            saveFailLog(bookingRequestDto);
+            bookingHistoryService.saveFailLog(bookingRequestDto);
             throw new AlreadyExistsException("좌석 중복");
         }
-        return BookingResponseDto.from(bookingRepository.save(bookingRequestDto.toEntity(performanceDto.toEntity(), memberDto.toEntity())));
+    }
+
+    /* 존재하지 않은 좌석 예외 처리 */
+    private void isValidSeatNumberException(BookingRequestDto bookingRequestDto) {
+        if(bookingRequestDto.getSeatNumber() > MAX_SEAT_NUMBER){
+            bookingHistoryService.saveFailLog(bookingRequestDto);
+            throw new ResourceNotFoundException("존재하지 않는 좌석");
+        }
     }
 
     /* 좌석 중복 확인 */
     public boolean isDuplicatedSeat(BookingRequestDto bookingRequestDto, PerformanceDto performanceDto){
         return bookingRepository.findByPerformanceAndPerformanceDateAndSeatTypeAndSeatNumber(performanceDto.toEntity(), bookingRequestDto.getPerformanceDate(),
                 bookingRequestDto.getSeatType(), bookingRequestDto.getSeatNumber()).isPresent();
-    }
-
-    /* 공연 예약 성공로그 저장 */
-    public void saveSuccessLog(BookingRequestDto bookingRequestDto){
-        BookingHistoryRequestDto bookingHistoryRequestDto = BookingHistoryRequestDto.builder()
-                .performance(performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate()
-                        , bookingRequestDto.getPerformanceDate()).toEntity())
-                .member(memberService.findByMemberEmail(bookingRequestDto.getMemberEmail()).toEntity())
-                .seatType(bookingRequestDto.getSeatType())
-                .seatNumber(bookingRequestDto.getSeatNumber())
-                .performanceDate(bookingRequestDto.getPerformanceDate())
-                .price(bookingRequestDto.getPrice())
-                .isBooking(true)
-                .build();
-        bookingHistoryService.saveBookingHistory(bookingHistoryRequestDto);
-    }
-
-    /* 공연 예약 실패로그 저장 */
-    public void saveFailLog(BookingRequestDto bookingRequestDto){
-        BookingHistoryRequestDto bookingHistoryRequestDto = BookingHistoryRequestDto.builder()
-                .performance(performanceService.showPerformanceInfo(bookingRequestDto.getTitle(), bookingRequestDto.getPerformanceDate()
-                            , bookingRequestDto.getPerformanceDate()).toEntity())
-                .member(memberService.findByMemberEmail(bookingRequestDto.getMemberEmail()).toEntity())
-                .seatType(bookingRequestDto.getSeatType())
-                .seatNumber(bookingRequestDto.getSeatNumber())
-                .performanceDate(bookingRequestDto.getPerformanceDate())
-                .price(bookingRequestDto.getPrice())
-                .build();
-        bookingHistoryService.saveBookingHistory(bookingHistoryRequestDto);
     }
 }

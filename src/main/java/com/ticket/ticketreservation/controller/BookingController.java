@@ -28,8 +28,11 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
-    public BookingController(BookingService bookingService) {
+    private final BookingHistoryService bookingHistoryService;
+
+    public BookingController(BookingService bookingService, BookingHistoryService bookingHistoryService) {
         this.bookingService = bookingService;
+        this.bookingHistoryService = bookingHistoryService;
     }
 
     /* 특정 공연의 특정날짜에 예약된 좌석 조회 */
@@ -51,10 +54,10 @@ public class BookingController {
     @PostMapping("/booking")
     public ResponseEntity booking(@RequestBody @Valid BookingRequestDto bookingRequestDto, Errors errors){
         if(errors.hasErrors()){
-            bookingService.saveFailLog(bookingRequestDto);
+            bookingHistoryService.saveFailLog(bookingRequestDto);
         }
         BookingResponseDto bookingResponseDto = bookingService.saveBooking(bookingRequestDto);
-        bookingService.saveSuccessLog(bookingRequestDto);
+        bookingHistoryService.saveSuccessLog(bookingRequestDto);
         return ResponseEntity.created(URI.create("/booking/" + bookingRequestDto.getMemberEmail())).body(new SuccessResponse(StatusCode.CREATED, bookingResponseDto));
     }
 }
