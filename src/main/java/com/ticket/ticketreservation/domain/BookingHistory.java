@@ -19,11 +19,11 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Table
-public class Booking {
+public class BookingHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "BOOKING_ID")
-    private Long bookingId;
+    @Column(name = "HISTORY_ID")
+    private Long historyId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @NotNull
@@ -57,4 +57,8 @@ public class Booking {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="CREATE_AT")
     private Date createAt;
+
+    @NotNull
+    @Column(name = "IS_BOOKING", columnDefinition = "boolean default false")
+    private boolean isBooking;
 }

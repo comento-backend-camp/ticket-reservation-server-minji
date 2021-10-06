@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.net.URI;
 
 @RestController
@@ -32,7 +33,7 @@ public class MemberController {
 
     /* 이메일 인증 */
     @GetMapping("/members/{memberEmail}")
-    public ResponseEntity verifyEmail(@PathVariable(value = "memberEmail") @Email String memberEmail){
+    public ResponseEntity verifyEmail(@PathVariable(value = "memberEmail") @Email @NotBlank String memberEmail){
         MemberDto memberDto = memberService.findByMemberEmail(memberEmail);
         return ResponseEntity.ok().body(new SuccessResponse(StatusCode.OK, memberDto));
     }

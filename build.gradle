@@ -26,6 +26,7 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'mysql:mysql-connector-java'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.16.3'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
